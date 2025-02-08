@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Funny Puzzle Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f4;
+        }
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+        }
+        .puzzle-board {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .piece {
+            width: 80px;
+            height: 80px;
+            font-size: 24px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: lightblue;
+            border: 2px solid #333;
+            cursor: grab;
+        }
+        .drop-zone {
+            width: 80px;
+            height: 80px;
+            background: white;
+            border: 2px dashed #333;
+        }
+        #message {
+            font-size: 24px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Complete the Puzzle in 10 sec!</h1>
+        <p id="timer">Time Left: 10s</p>
+        <div class="puzzle-board">
+            <div id="zone1" class="drop-zone"></div>
+            <div id="zone2" class="drop-zone"></div>
+            <div id="zone3" class="drop-zone"></div>
+        </div>
+        <div class="puzzle-board">
+            <div id="p1" class="piece" draggable="true">1</div>
+            <div id="p2" class="piece" draggable="true">2</div>
+            <div id="p3" class="piece" draggable="true">3</div>
+        </div>
+        <p id="message"></p>
+    </div>
+
+    <script>
+        let correctOrder = { zone1: "1", zone2: "2", zone3: "3" };
+        let userOrder = {};
+        let timeLeft = 10;
+        let timer = setInterval(() => {
+            timeLeft--;
+            document.getElementById("timer").innerText = `Time Left: ${timeLeft}s`;
+            if (timeLeft === 0) {
+                clearInterval(timer);
+                checkPuzzle();
+            }
+        }, 1000);
+
+        document.querySelectorAll(".piece").forEach(piece => {
+            piece.addEventListener("dragstart", (e) => {
+                e.dataTransfer.setData("text", e.target.id);
+            });
+        });
+
+        document.querySelectorAll(".drop-zone").forEach(zone => {
+            zone.addEventListener("dragover", (e) => {
+                e.preventDefault();
+            });
+
+            zone.addEventListener("drop", (e) => {
+                e.preventDefault();
+                let pieceId = e.dataTransfer.getData("text");
+                let piece = document.getElementById(pieceId);
+                if (!zone.hasChildNodes()) {
+                    zone.appendChild(piece);
+                    userOrder[zone.id] = piece.innerText;
+                }
+            });
+        });
+
+        function checkPuzzle() {
+            let isCorrect = Object.keys(correctOrder).every(
+                key => correctOrder[key] === userOrder[key]
+            );
+            document.getElementById("message").innerText = isCorrect ? "Good Job!" : "Wrong!";
+        }
+    </script>
+</body>
+</html>
